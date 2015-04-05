@@ -49,7 +49,8 @@ import (
 )
 
 type CECConfiguration struct { 
-	DeviceName string 
+	DeviceName string
+	DeviceType string
 } 
 
  
@@ -66,8 +67,22 @@ func cecInit(config CECConfiguration) error {
 
 	for i:=0; i<5; i++ {
 		conf.deviceTypes.types[i] = C.CEC_DEVICE_TYPE_RESERVED
-        }
-	conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_RECORDING_DEVICE
+	}
+	if config.DeviceType === "tv" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_TV
+	} else if config.DeviceType == "recording" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_RECORDING_DEVICE
+	} else if config.DeviceType == "reserved" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_RESERVED
+	} else if config.DeviceType == "tuner" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_TUNER
+	} else if config.DeviceType == "playback" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_PLAYBACK_DEVICE
+	} else if config.DeviceType == "audio" {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_AUDIO_SYSTEM
+	} else {
+		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_RECORDING_DEVICE
+	}
 
 	C.setName(&conf, C.CString(config.DeviceName))
 	C.setupCallbacks(&conf) 
@@ -99,7 +114,7 @@ func getAdapter(name string) (CECAdapter, error) {
 }
 
 func openAdapter(adapter CECAdapter) error { 
-        C.cec_init_video_standalone()
+				C.cec_init_video_standalone()
 
 	result := C.cec_open(C.CString(adapter.Comm), C.CEC_DEFAULT_CONNECT_TIMEOUT) 
 	if result < 1 { 
@@ -110,34 +125,34 @@ func openAdapter(adapter CECAdapter) error {
 } 
 
 func Transmit(command string) {
-        var cec_command C.cec_command
+				var cec_command C.cec_command
 
-        cmd, err := hex.DecodeString(removeSeparators(command))
-        if err != nil {
-                log.Fatal(err)
-        }
-        cmd_len := len(cmd)
+				cmd, err := hex.DecodeString(removeSeparators(command))
+				if err != nil {
+								log.Fatal(err)
+				}
+				cmd_len := len(cmd)
 
-        if (cmd_len > 0) {
-                cec_command.initiator = C.cec_logical_address((cmd[0] >> 4) & 0xF)
-                cec_command.destination = C.cec_logical_address(cmd[0] & 0xF)
-                if (cmd_len > 1) {
-                        cec_command.opcode_set = 1
-                        cec_command.opcode = C.cec_opcode(cmd[1])
-                } else {
-                        cec_command.opcode_set = 0
-                }
-                if (cmd_len > 2) {
-                        cec_command.parameters.size = C.uint8_t(cmd_len-2)
-                        for i := 0; i < cmd_len-2; i++ {
-                                cec_command.parameters.data[i] = C.uint8_t(cmd[i+2])
-                        }
-                } else {
-                        cec_command.parameters.size = 0
-                }
-        }
+				if (cmd_len > 0) {
+								cec_command.initiator = C.cec_logical_address((cmd[0] >> 4) & 0xF)
+								cec_command.destination = C.cec_logical_address(cmd[0] & 0xF)
+								if (cmd_len > 1) {
+												cec_command.opcode_set = 1
+												cec_command.opcode = C.cec_opcode(cmd[1])
+								} else {
+												cec_command.opcode_set = 0
+								}
+								if (cmd_len > 2) {
+												cec_command.parameters.size = C.uint8_t(cmd_len-2)
+												for i := 0; i < cmd_len-2; i++ {
+																cec_command.parameters.data[i] = C.uint8_t(cmd[i+2])
+												}
+								} else {
+												cec_command.parameters.size = 0
+								}
+				}
 
-        C.cec_transmit((*C.cec_command)(&cec_command))
+				C.cec_transmit((*C.cec_command)(&cec_command))
 }
 
 func Destroy() {

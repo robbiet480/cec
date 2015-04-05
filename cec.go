@@ -14,6 +14,7 @@ type Device struct {
 	ActiveSource bool
 	PowerStatus string
 	PhysicalAddress string
+  RoomieName string
 }
 
 var logicalNames = []string{ "TV", "Recording", "Recording2", "Tuner",
@@ -53,9 +54,10 @@ var keyList = map[int]string{ 0x00:"Select", 0x01:"Up", 0x02:"Down", 0x03:"Left"
 	0x74:"Yellow", 0x75:"F5", 0x76:"Data", 0x91:"AnReturn",
 	0x96:"Max" }
 
-func Open(name string, deviceName string) {
+func Open(name string, deviceName string, deviceType string) {
 	var config CECConfiguration
 	config.DeviceName = deviceName
+  config.DeviceType = deviceType
 
 	if er := cecInit(config); er != nil {
 		log.Println(er)
@@ -120,6 +122,7 @@ func List() map[string]Device {
 
 			dev.LogicalAddress = address
 			dev.PhysicalAddress = GetDevicePhysicalAddress(address)
+      dev.RoomieName = "INPUT HDMI "+strings.Split(GetDevicePhysicalAddress(address), ".")[0];
 			dev.OSDName = GetDeviceOSDName(address)
 			dev.PowerStatus = GetDevicePowerStatus(address)
 			dev.ActiveSource = IsActiveSource(address)
