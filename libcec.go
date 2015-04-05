@@ -68,7 +68,7 @@ func cecInit(config CECConfiguration) error {
 	for i:=0; i<5; i++ {
 		conf.deviceTypes.types[i] = C.CEC_DEVICE_TYPE_RESERVED
 	}
-	if config.DeviceType === "tv" {
+	if config.DeviceType == "tv" {
 		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_TV
 	} else if config.DeviceType == "recording" {
 		conf.deviceTypes.types[0] = C.CEC_DEVICE_TYPE_RECORDING_DEVICE
