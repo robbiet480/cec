@@ -243,18 +243,6 @@ func GetDeviceVendorId(address int) uint64 {
 	return uint64(result)
 }
 
-func GetDeviceLanguage(address int) string {
-	result := C.cec_get_device_menu_language(C.cec_logical_address(address))
-
-	return string(result)
-}
-
-func GetDeviceCECVersion(address int) string {
-	result := C.cec_get_device_cec_version(C.cec_logical_address(address))
-
-	return string(result)
-}
-
 func GetDevicePhysicalAddress(address int) string {
 	result := C.cec_get_device_physical_address(C.cec_logical_address(address))
 

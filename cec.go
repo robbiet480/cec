@@ -15,8 +15,6 @@ type Device struct {
 	PowerStatus string
 	PhysicalAddress string
 	RoomieName string
-	Language string
-	CECVersion string
 }
 
 var logicalNames = []string{ "TV", "Recording", "Recording2", "Tuner",
@@ -129,8 +127,6 @@ func List() map[string]Device {
 			dev.PowerStatus = GetDevicePowerStatus(address)
 			dev.ActiveSource = IsActiveSource(address)
 			dev.Vendor = GetVendorById(GetDeviceVendorId(address))
-			dev.Language = GetDeviceLanguage(address)
-			dev.CECVersion = GetDeviceCECVersion(address)
 
 			devices[logicalNames[address]] = dev
 		}
