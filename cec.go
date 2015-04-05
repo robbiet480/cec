@@ -14,7 +14,7 @@ type Device struct {
 	ActiveSource bool
 	PowerStatus string
 	PhysicalAddress string
-  RoomieName string
+	RoomieName string
 }
 
 var logicalNames = []string{ "TV", "Recording", "Recording2", "Tuner",
@@ -57,7 +57,7 @@ var keyList = map[int]string{ 0x00:"Select", 0x01:"Up", 0x02:"Down", 0x03:"Left"
 func Open(name string, deviceName string, deviceType string) {
 	var config CECConfiguration
 	config.DeviceName = deviceName
-  config.DeviceType = deviceType
+	config.DeviceType = deviceType
 
 	if er := cecInit(config); er != nil {
 		log.Println(er)
@@ -84,7 +84,7 @@ func Key(address int, key interface{}) {
 	case string:
 		if key[:2] == "0x" && len(key) == 4 {
 			keybytes, err := hex.DecodeString(key[2:])
-	                if err != nil {
+									if err != nil {
 				log.Println(err)
 				return
 			}
@@ -122,7 +122,7 @@ func List() map[string]Device {
 
 			dev.LogicalAddress = address
 			dev.PhysicalAddress = GetDevicePhysicalAddress(address)
-      dev.RoomieName = "INPUT HDMI "+strings.Split(GetDevicePhysicalAddress(address), ".")[0];
+			dev.RoomieName = "INPUT HDMI "+strings.Split(GetDevicePhysicalAddress(address), ".")[0];
 			dev.OSDName = GetDeviceOSDName(address)
 			dev.PowerStatus = GetDevicePowerStatus(address)
 			dev.ActiveSource = IsActiveSource(address)
@@ -135,13 +135,13 @@ func List() map[string]Device {
 }
 
 func removeSeparators(in string) string {
-        // remove separators (":", "-", " ", "_")
-        out := strings.Map(func(r rune) rune {
-                if strings.IndexRune(":-_ ", r) < 0 {
-                        return r
-                }
-                return -1
-        }, in)
+				// remove separators (":", "-", " ", "_")
+				out := strings.Map(func(r rune) rune {
+								if strings.IndexRune(":-_ ", r) < 0 {
+												return r
+								}
+								return -1
+				}, in)
 
 	return(out)
 }
