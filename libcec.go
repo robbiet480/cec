@@ -270,9 +270,9 @@ func GetAudioStatus() string {
 	result := C.cec_audio_get_status()
 
 	if int(result) == C.CEC_AUDIO_MUTE_STATUS_MASK {
-		return ""
+		return "MUTE"
 	} else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_MASK {
-		return ""
+		return "MASK"
 	} else if int(result) == C.CEC_AUDIO_VOLUME_MIN {
 		return "0"
 	} else if int(result) == C.CEC_AUDIO_VOLUME_MAX {
@@ -280,7 +280,17 @@ func GetAudioStatus() string {
 	} else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_UNKNOWN {
 		return "Unknown"
 	} else {
-		return ""
+		return "OTHER"
 	}
 
+}
+
+func PollDevice(address int) bool {
+	result := C.cec_poll_device(C.cec_logical_address(address))
+
+	if result != 0 {
+		return true
+	} else {
+		return false
+	}
 }
