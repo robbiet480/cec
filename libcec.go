@@ -267,20 +267,20 @@ func GetDevicePowerStatus(address int) string {
 }
 
 func GetAudioStatus() string {
-  result := C.cec_audio_get_status()
+	result := C.cec_audio_get_status()
 
-  if int(result) == C.CEC_AUDIO_MUTE_STATUS_MASK {
-    return ""
-  } else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_MASK {
-    return ""
-  } else if int(result) == C.CEC_AUDIO_VOLUME_MIN {
-    return "0"
-  } else if int(result) == C.CEC_AUDIO_VOLUME_MAX {
-    return "100"
-  } else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_UNKNOWN {
-    return "Unknown"
-  } else {
-    return ""
-  }
+	if int(result) == C.CEC_AUDIO_MUTE_STATUS_MASK {
+		return ""
+	} else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_MASK {
+		return ""
+	} else if int(result) == C.CEC_AUDIO_VOLUME_MIN {
+		return "0"
+	} else if int(result) == C.CEC_AUDIO_VOLUME_MAX {
+		return "100"
+	} else if int(result) == C.CEC_AUDIO_VOLUME_STATUS_UNKNOWN {
+		return "Unknown"
+	} else {
+		return ""
+	}
 
 }
