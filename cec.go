@@ -77,7 +77,7 @@ func Open(name string, deviceName string, deviceType string) {
 	}
 }
 
-func Key(address int, key interface{}) {
+func Key(address int, key interface{}) error {
 	var keycode int
 
 	switch key := key.(type) {
@@ -85,8 +85,8 @@ func Key(address int, key interface{}) {
 		if key[:2] == "0x" && len(key) == 4 {
 			keybytes, err := hex.DecodeString(key[2:])
 			if err != nil {
-				log.Println(err)
-				return
+				// log.Println(err)
+				return err
 			}
 			keycode = int(keybytes[0])
 		} else {
@@ -96,19 +96,20 @@ func Key(address int, key interface{}) {
 		keycode = key
 	default:
 		log.Println("Invalid key type")
-		return
+		return errors.New("Invalid key type")
 	}
 	er := KeyPress(address, keycode)
 	if er != nil {
 		log.Println(er)
-		return
+		return er
 	}
 	time.Sleep(10 * time.Millisecond)
 	er = KeyRelease(address)
 	if er != nil {
 		log.Println(er)
-		return
+		return er
 	}
+	return nil
 }
 
 func List() map[string]Device {

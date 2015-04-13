@@ -125,7 +125,7 @@ func openAdapter(adapter CECAdapter) error {
 	return nil
 }
 
-func Transmit(command string) {
+func Transmit(command string) error {
 	var cec_command C.cec_command
 
 	cmd, err := hex.DecodeString(removeSeparators(command))
@@ -153,7 +153,11 @@ func Transmit(command string) {
 		}
 	}
 
-	C.cec_transmit((*C.cec_command)(&cec_command))
+	result := C.cec_transmit((*C.cec_command)(&cec_command))
+	if result < 1 {
+		return errors.New("Failed to transmit!")
+	}
+	return nil
 }
 
 func Destroy() {
