@@ -8,10 +8,12 @@ package cec
 ICECCallbacks g_callbacks;
 // callbacks.go exports
 int logMessageCallback(void *, const cec_log_message);
+void logSourceChangeCallback(void *, const cec_logical_address, uint8_t activated);
 
 void setupCallbacks(libcec_configuration *conf)
 {
 	g_callbacks.CBCecLogMessage = &logMessageCallback;
+	g_callbacks.CBCecSourceActivated = &logSourceChangeCallback;
 	(*conf).callbacks = &g_callbacks;
 }
 
