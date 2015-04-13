@@ -2,6 +2,7 @@ package cec
 
 import (
 	"encoding/hex"
+	"errors"
 	"log"
 	"strings"
 	"time"
