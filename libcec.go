@@ -161,14 +161,14 @@ func Destroy() {
 }
 
 func PowerOn(address int) error {
-	if C.cec_power_on_devices(C.cec_logical_address(address)) != 0 {
+	if C.cec_power_on_devices(C.cec_logical_address(address)) != 1 {
 		return errors.New("Error in cec_power_on_devices")
 	}
 	return nil
 }
 
 func Standby(address int) error {
-	if C.cec_standby_devices(C.cec_logical_address(address)) != 0 {
+	if C.cec_standby_devices(C.cec_logical_address(address)) != 1 {
 		return errors.New("Error in cec_standby_devices")
 	}
 	return nil
