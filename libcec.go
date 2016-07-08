@@ -8,10 +8,22 @@ package cec
 ICECCallbacks g_callbacks;
 // callbacks.go exports
 int logMessageCallback(void *, const cec_log_message);
+int keyPressCallback(void *, const cec_keypress);
+int commandCallback(void *, const cec_command);
+int configurationChangedCallback(void *, const libcec_configuration);
+int alertCallback(void *, const libcec_alert, const libcec_parameter);
+int menuStateChangedCallback(void *, const cec_menu_state);
+void sourceActivatedCallback(void *, const cec_logical_address, uint8_t activated);
 
 void setupCallbacks(libcec_configuration *conf)
 {
 	g_callbacks.CBCecLogMessage = &logMessageCallback;
+	g_callbacks.CBCecKeyPress = &keyPressCallback;
+	g_callbacks.CBCecCommand = &commandCallback;
+	g_callbacks.CBCecConfigurationChanged = &configurationChangedCallback;
+	g_callbacks.CBCecAlert = &alertCallback;
+	g_callbacks.CBCecMenuStateChanged = &menuStateChangedCallback;
+	g_callbacks.CBCecSourceActivated = &sourceActivatedCallback;
 	(*conf).callbacks = &g_callbacks;
 }
 
@@ -57,6 +69,8 @@ type cecAdapter struct {
 	Comm string
 }
 
+var CallbackEvents chan interface{}
+
 func cecInit(deviceName, deviceType string) (C.libcec_connection_t, error) {
 	var connection C.libcec_connection_t
 	var conf C.libcec_configuration
@@ -83,6 +97,8 @@ func cecInit(deviceName, deviceType string) (C.libcec_connection_t, error) {
 	}
 
 	C.setName(&conf, C.CString(deviceName))
+
+	CallbackEvents = make(chan interface{})
 	C.setupCallbacks(&conf)
 
 	connection = C.libcec_initialise(&conf)

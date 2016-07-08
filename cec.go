@@ -56,6 +56,29 @@ var keyList = map[int]string{0x00: "Select", 0x01: "Up", 0x02: "Down", 0x03: "Le
 	0x74: "Yellow", 0x75: "F5", 0x76: "Data", 0x91: "AnReturn",
 	0x96: "Max"}
 
+var opcodeList = map[int]string{0x82: "ActiveSource", 0x04: "ImageViewOn",
+	0x0D: "TextViewOn", 0x9D: "InactiveSource", 0x85: "RequestActiveSource",
+	0x80: "RoutingChange", 0x81: "RoutingInformation", 0x86: "SetStreamPath",
+	0x36: "Standby", 0x0B: "RecordOff", 0x09: "RecordOn", 0x0A: "RecordStatus",
+	0x0F: "RecordTVScreen", 0x33: "ClearAnalogueTimer", 0x99: "ClearDigitalTimer",
+	0xA1: "ClearExternalTimer", 0x34: "SetAnalogueTimer", 0x97: "SetDigitalTimer",
+	0xA2: "SetExternalTimer", 0x67: "SetTimerProgramTitle", 0x43: "TimerClearedStatus",
+	0x35: "TimerStatus", 0x9E: "CECVersion", 0x9F: "GetCECVersion",
+	0x83: "GivePhysicalAddress", 0x91: "GetMenuLanguage", 0x84: "ReportPhysicalAddress",
+	0x32: "SetMenuLanguage", 0x42: "DeckControl", 0x1B: "DeckStatus", 0x1A: "GiveDeckStatus",
+	0x41: "Play", 0x08: "GiveTunerDeviceStatus", 0x92: "SelectAnalogueService",
+	0x93: "SelectDigitalService", 0x07: "TunerDeviceStatus", 0x06: "TunerStepDecrement",
+	0x05: "TunerStepIncrement", 0x87: "DeviceVendorID", 0x8C: "GiveDeviceVendorID",
+	0x89: "VendorCommand", 0xA0: "VendorCommandWithID", 0x8A: "VendorRemoteButtonDown",
+	0x8B: "VendorRemoteButtonUp", 0x64: "SetOSDString", 0x46: "GiveOSDName", 0x47: "SetOSDName",
+	0x8D: "MenuRequest", 0x8E: "MenuStatus", 0x44: "UserControlPressed", 0x45: "UserControlRelease",
+	0x8F: "GiveDevicePowerStatus", 0x90: "ReportPowerStatus", 0x00: "FeatureAbort", 0xFF: "Abort",
+	0x71: "GiveAudioStatus", 0x7D: "GiveSystemAudioModeStatus", 0x7A: "ReportAudioStatus",
+	0x72: "SetSystemAudioMode", 0x70: "SystemAudioModeRequest", 0x7E: "SystemAudioModeStatus",
+	0x9A: "SetAudioRate", 0xC0: "StartARC", 0xC1: "ReportARCStarted", 0xC2: "ReportARCEnded",
+	0xC3: "RequestARCStart", 0xC4: "RequestARCEnd", 0xC5: "EndARC", 0xF8: "CDC",
+	0xFD: "None"}
+
 // Open - open a new connection to the CEC device with the given name
 func Open(name, deviceName, deviceType string) (*Connection, error) {
 	c := new(Connection)
