@@ -190,3 +190,13 @@ func GetLogicalAddressByName(name string) int {
 
 	return -1
 }
+
+// GetLogicalNameByAddress - get logical name by address
+func GetLogicalNameByAddress(addr int) string {
+	return logicalNames[addr]
+}
+
+// GetVendorByID - Get vendor by ID
+func GetVendorByID(id uint64) string {
+	return vendorList[id]
+}
