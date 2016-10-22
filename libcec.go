@@ -3,6 +3,7 @@ package cec
 /*
 #cgo pkg-config: libcec
 #include <stdio.h>
+#include <errno.h>
 #include <libcec/cecc.h>
 
 ICECCallbacks g_callbacks;
@@ -182,7 +183,7 @@ func (c *Connection) Destroy() {
 
 // PowerOn - power on the device with the given logical address
 func (c *Connection) PowerOn(address int) error {
-	if C.libcec_power_on_devices(c.connection, C.cec_logical_address(address)) != 0 {
+	if C.libcec_power_on_devices(c.connection, C.cec_logical_address(address)) != 1 {
 		return errors.New("Error in cec_power_on_devices")
 	}
 	return nil
@@ -190,7 +191,7 @@ func (c *Connection) PowerOn(address int) error {
 
 // Standby - put the device with the given address in standby mode
 func (c *Connection) Standby(address int) error {
-	if C.libcec_standby_devices(c.connection, C.cec_logical_address(address)) != 0 {
+	if C.libcec_standby_devices(c.connection, C.cec_logical_address(address)) != 1 {
 		return errors.New("Error in cec_standby_devices")
 	}
 	return nil
@@ -248,6 +249,11 @@ func (c *Connection) GetActiveDevices() [16]bool {
 	}
 
 	return devices
+}
+
+// GetActiveSource - returns the logical address of the currently active source
+func (c *Connection) GetActiveSource() int {
+	return int(C.libcec_get_active_source(c.connection))
 }
 
 // GetDeviceOSDName - get the OSD name of the specified device
@@ -326,4 +332,44 @@ func (c *Connection) PollDevice(address int) bool {
 	result := C.libcec_poll_device(c.connection, C.cec_logical_address(address))
 
 	return (result != 0)
+}
+
+// GetVendorString - Get vendor string by ID
+func GetVendorString(id uint64) string {
+	var vendorName *C.char = C.CString("")
+	_, err := C.libcec_vendor_id_to_string(C.cec_vendor_id(id), vendorName, 15)
+	if err != nil {
+		return "Unknown"
+	}
+	return C.GoString(vendorName)
+}
+
+// GetOpcodeString - Get opcode string by hex
+func GetOpcodeString(opcode int) string {
+	var opcodeString *C.char = C.CString("")
+	_, err := C.libcec_opcode_to_string(C.cec_opcode(opcode), opcodeString, 15)
+	if err != nil {
+		return "Unknown"
+	}
+	return C.GoString(opcodeString)
+}
+
+// GetUserControlKeyString - Get user control key string by int
+func GetUserControlKeyString(key C.cec_user_control_code) string {
+	var keyString *C.char = C.CString("")
+	_, err := C.libcec_user_control_key_to_string(key, keyString, 15)
+	if err != nil {
+		return "Unknown"
+	}
+	return C.GoString(keyString)
+}
+
+// GetLogicalNameByAddress - get logical name by address
+func GetLogicalNameByAddress(addr int) string {
+	var logicalName *C.char = C.CString("")
+	_, err := C.libcec_logical_address_to_string(C.cec_logical_address(addr), logicalName, 15)
+	if err != nil {
+		return "Unknown"
+	}
+	return C.GoString(logicalName)
 }

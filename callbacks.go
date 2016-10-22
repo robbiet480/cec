@@ -18,9 +18,11 @@ func NewLogicalAddress(address C.cec_logical_address) LogicalAddress {
 }
 
 type LogMessage struct {
-	Message   string
-	Level     string
-	Timestamp time.Time
+	Message                     string
+	Level                       string
+	Direction                   string
+	MillisecondsSinceConnection int64
+	Timestamp                   time.Time
 }
 
 //export logMessageCallback
@@ -48,10 +50,19 @@ func logMessageCallback(c unsafe.Pointer, msg C.cec_log_message) C.uint8_t {
 	default:
 		break
 	}
+	stringMsg := C.GoString(&msg.message[0])
+	direction := "N/A"
+	if stringMsg[0:2] == "<<" {
+		direction = "Outbound"
+	} else if stringMsg[0:2] == ">>" {
+		direction = "Inbound"
+	}
 	message := LogMessage{
-		Message:   C.GoString(&msg.message[0]),
-		Level:     level,
-		Timestamp: time.Unix(int64(msg.time), 0),
+		Message:                     stringMsg,
+		Level:                       level,
+		Direction:                   direction,
+		MillisecondsSinceConnection: int64(msg.time),
+		Timestamp:                   time.Now(),
 	}
 	CallbackEvents <- message
 
@@ -62,14 +73,16 @@ type KeyPress struct {
 	KeyCode     int
 	KeyCodeName string
 	Duration    int
+	Timestamp   time.Time
 }
 
 //export keyPressCallback
 func keyPressCallback(c unsafe.Pointer, keyPress C.cec_keypress) C.uint8_t {
 	CallbackEvents <- KeyPress{
 		KeyCode:     int(keyPress.keycode),
-		KeyCodeName: keyList[int(keyPress.keycode)],
+		KeyCodeName: GetUserControlKeyString(keyPress.keycode),
 		Duration:    int(keyPress.duration),
+		Timestamp:   time.Now(),
 	}
 	return 1
 }
@@ -89,6 +102,7 @@ type Command struct {
 	Parameters      DataPacket
 	OpcodeSet       bool
 	TransmitTimeout int32
+	Timestamp       time.Time
 }
 
 //export commandCallback
@@ -99,10 +113,11 @@ func commandCallback(c unsafe.Pointer, command C.cec_command) C.uint8_t {
 		Acknowledged:    (int(command.ack) == 1),
 		EndOfMessage:    (int(command.eom) == 1),
 		Opcode:          int(command.opcode),
-		OpcodeName:      opcodeList[int(command.opcode)],
+		OpcodeName:      GetOpcodeString(int(command.opcode)),
 		Parameters:      DataPacket{Data: command.parameters.data, Size: int(command.parameters.size)},
 		OpcodeSet:       (int(command.opcode_set) == 1),
 		TransmitTimeout: int32(command.transmit_timeout),
+		Timestamp:       time.Now(),
 	}
 	return 1
 }
@@ -120,6 +135,7 @@ type Parameter struct {
 type Alert struct {
 	Type       string
 	Parameters Parameter
+	Timestamp  time.Time
 }
 
 //export alertCallback
@@ -154,31 +170,37 @@ func alertCallback(c unsafe.Pointer, alert C.libcec_alert, parameter C.libcec_pa
 			Type: parameterType,
 			Data: parameter.paramData,
 		},
+		Timestamp: time.Now(),
 	}
 	return 1
 }
 
-type MenuState bool
+type MenuState struct {
+	Activated bool
+	Timestamp time.Time
+}
 
 // menuState is bool, 0 = activated, 1 = deactivated
 //export menuStateChangedCallback
 func menuStateChangedCallback(c unsafe.Pointer, state C.cec_menu_state) C.uint8_t {
-	CallbackEvents <- MenuState(int(state) == 0)
+	CallbackEvents <- MenuState{
+		Activated: int(state) == 0,
+		Timestamp: time.Now(),
+	}
 	return 1
 }
 
 type SourceActivated struct {
-	Source LogicalAddress
-	Active bool
+	Source    LogicalAddress
+	Active    bool
+	Timestamp time.Time
 }
 
 //export sourceActivatedCallback
 func sourceActivatedCallback(c unsafe.Pointer, logicalAddress C.cec_logical_address, activated int) {
 	CallbackEvents <- SourceActivated{
-		Source: NewLogicalAddress(logicalAddress),
-		Active: (activated == 1),
+		Source:    NewLogicalAddress(logicalAddress),
+		Active:    (activated == 1),
+		Timestamp: time.Now(),
 	}
-	// result := C.cec_get_device_physical_address(C.cec_logical_address(logicalAddress))
-
-	// log.Println(fmt.Sprintf("Input changed to %x.%x.%x.%x", (uint(result)>>12)&0xf, (uint(result)>>8)&0xf, (uint(result)>>4)&0xf, uint(result)&0xf))
 }
