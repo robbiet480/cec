@@ -50,12 +50,14 @@ func logMessageCallback(c unsafe.Pointer, msg C.cec_log_message) C.uint8_t {
 	default:
 		break
 	}
-	stringMsg := C.GoString(&msg.message[0])
+	stringMsg := C.GoString((&msg).message)
 	direction := "N/A"
-	if stringMsg[0:2] == "<<" {
-		direction = "Outbound"
-	} else if stringMsg[0:2] == ">>" {
-		direction = "Inbound"
+	if len(stringMsg) >= 2 {
+		if stringMsg[0:2] == "<<" {
+			direction = "Outbound"
+		} else if stringMsg[0:2] == ">>" {
+			direction = "Inbound"
+		}
 	}
 	message := LogMessage{
 		Message:                     stringMsg,
