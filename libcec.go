@@ -8,23 +8,23 @@ package cec
 
 ICECCallbacks g_callbacks;
 // callbacks.go exports
-int logMessageCallback(void *, const cec_log_message);
-int keyPressCallback(void *, const cec_keypress);
-int commandCallback(void *, const cec_command);
-int configurationChangedCallback(void *, const libcec_configuration);
-int alertCallback(void *, const libcec_alert, const libcec_parameter);
+void logMessageCallback(void *, const cec_log_message*);
+void keyPressCallback(void *, const cec_keypress*);
+void commandCallback(void *, const cec_command*);
+void configurationChangedCallback(void *, const libcec_configuration*);
+void alertCallback(void *, const libcec_alert, const libcec_parameter);
 int menuStateChangedCallback(void *, const cec_menu_state);
 void sourceActivatedCallback(void *, const cec_logical_address, uint8_t activated);
 
 void setupCallbacks(libcec_configuration *conf)
 {
-	g_callbacks.CBCecLogMessage = &logMessageCallback;
-	g_callbacks.CBCecKeyPress = &keyPressCallback;
-	g_callbacks.CBCecCommand = &commandCallback;
-	g_callbacks.CBCecConfigurationChanged = &configurationChangedCallback;
-	g_callbacks.CBCecAlert = &alertCallback;
-	g_callbacks.CBCecMenuStateChanged = &menuStateChangedCallback;
-	g_callbacks.CBCecSourceActivated = &sourceActivatedCallback;
+	g_callbacks.logMessage = &logMessageCallback;
+	g_callbacks.keyPress = &keyPressCallback;
+	g_callbacks.commandReceived = &commandCallback;
+	g_callbacks.configurationChanged = &configurationChangedCallback;
+	g_callbacks.alert = &alertCallback;
+	g_callbacks.menuStateChanged = &menuStateChangedCallback;
+	g_callbacks.sourceActivated = &sourceActivatedCallback;
 	(*conf).callbacks = &g_callbacks;
 }
 
@@ -258,9 +258,9 @@ func (c *Connection) GetActiveSource() int {
 
 // GetDeviceOSDName - get the OSD name of the specified device
 func (c *Connection) GetDeviceOSDName(address int) string {
-	result := C.libcec_get_device_osd_name(c.connection, C.cec_logical_address(address))
-
-	return C.GoString(&result.name[0])
+        var name *C.char = C.CString("")
+ 	C.libcec_get_device_osd_name(c.connection, C.cec_logical_address(address), name)
+	return C.GoString(name)
 }
 
 // IsActiveSource - check if the device at the given address is the active source
@@ -337,7 +337,7 @@ func (c *Connection) PollDevice(address int) bool {
 // GetVendorString - Get vendor string by ID
 func GetVendorString(id uint64) string {
 	var vendorName *C.char = C.CString("")
-	_, err := C.libcec_vendor_id_to_string(C.cec_vendor_id(id), vendorName, 15)
+	_, err := C.libcec_vendor_id_to_string(C.cec_vendor_id(id), vendorName, 10)
 	if err != nil {
 		return "Unknown"
 	}
@@ -347,7 +347,7 @@ func GetVendorString(id uint64) string {
 // GetOpcodeString - Get opcode string by hex
 func GetOpcodeString(opcode int) string {
 	var opcodeString *C.char = C.CString("")
-	_, err := C.libcec_opcode_to_string(C.cec_opcode(opcode), opcodeString, 15)
+	_, err := C.libcec_opcode_to_string(C.cec_opcode(opcode), opcodeString, 10)
 	if err != nil {
 		return "Unknown"
 	}
@@ -357,7 +357,7 @@ func GetOpcodeString(opcode int) string {
 // GetUserControlKeyString - Get user control key string by int
 func GetUserControlKeyString(key C.cec_user_control_code) string {
 	var keyString *C.char = C.CString("")
-	_, err := C.libcec_user_control_key_to_string(key, keyString, 15)
+	_, err := C.libcec_user_control_key_to_string(key, keyString, 10)
 	if err != nil {
 		return "Unknown"
 	}
@@ -367,7 +367,7 @@ func GetUserControlKeyString(key C.cec_user_control_code) string {
 // GetLogicalNameByAddress - get logical name by address
 func GetLogicalNameByAddress(addr int) string {
 	var logicalName *C.char = C.CString("")
-	_, err := C.libcec_logical_address_to_string(C.cec_logical_address(addr), logicalName, 15)
+	 _, err := C.libcec_logical_address_to_string(C.cec_logical_address(addr), logicalName, 10)
 	if err != nil {
 		return "Unknown"
 	}
